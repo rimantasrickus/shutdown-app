@@ -58,9 +58,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.1.0",
-    "vue": "^2.5.16",
-    "vue-router": "^3.0.1",
-    "vue2-timepicker": "^1.0.7"
+    "vue": "^2.5.16"
   },
   "devDependencies": {
     "ajv": "^6.5.0",

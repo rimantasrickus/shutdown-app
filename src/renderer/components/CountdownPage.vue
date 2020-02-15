@@ -3,21 +3,20 @@
         <div id="top">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <label class="input-group-text" for="inputGroupSelect01">Time options</label>
+              <label class="input-group-text" for="shutdownTimeSelect">Time options</label>
             </div>
-            <select class="custom-select" id="inputGroupSelect01">
+            <select class="custom-select" id="shutdownTimeSelect">
               <option value="1">Time when to shutdown</option>
               <option value="2">Time until shutdown</option>
             </select>
           </div>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <label class="input-group-text" for="inputGroupSelect01">Shutdown options</label>
+              <label class="input-group-text" for="shutdownCommandSelect">Shutdown options</label>
             </div>
-            <select class="custom-select" id="inputGroupSelect01">
+            <select class="custom-select" id="shutdownCommandSelect">
               <option value="1">Shutdown</option>
-              <option value="2">Sleep</option>
-              <option value="3">Hibernate</option>
+              <option value="2">Hibernate</option>
             </select>
           </div>
           <div class="input-group">
@@ -38,12 +37,10 @@
 
 <script>
 import { ipcRenderer } from 'electron'
-import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 
 export default {
   name: 'countdown-page',
   components: {
-    VueTimepicker
   },
   data () {
     return {}
@@ -69,7 +66,8 @@ export default {
       )
     },
     enteredTimeIsValid () {
-      if (document.querySelector('input#limitHours').value === '') {
+      let shutdownTimeSelect = document.querySelector('select#shutdownTimeSelect').value
+      if (document.querySelector('input#limitHours').value === '' && shutdownTimeSelect !== '2') {
         document.querySelector('div#text').innerHTML = 'Please enter hours'
         return false
       }
@@ -81,19 +79,26 @@ export default {
       return true
     },
     getCountDownTimer () {
+      let shutdownTimeSelect = document.querySelector('select#shutdownTimeSelect').value
       let countDownTimer = new Date()
       let hours = Number(document.querySelector('input#limitHours').value)
       let minutes = Number(document.querySelector('input#limitMinutes').value)
-      if (hours < countDownTimer.getHours()) {
+      if (shutdownTimeSelect === '2') {
+        hours = countDownTimer.getHours() + hours
+        minutes = countDownTimer.getMinutes() + minutes
+      }
+      if (hours < countDownTimer.getHours() && hours > 0) {
         countDownTimer.setDate(countDownTimer.getDate() + 1)
       }
       countDownTimer.setHours(hours, minutes)
+
       return countDownTimer
     },
     cancel () {
       clearInterval(this.interval)
       document.querySelector('div#text').innerHTML = ''
       document.querySelector('div#time').innerHTML = ''
+      ipcRenderer.send('request-mainprocess-action', {'shutdown': 'cancel'})
     },
     countDown () {
       if (!this.enteredTimeIsValid()) {
@@ -106,6 +111,11 @@ export default {
       let countDownTimer = this.getCountDownTimer()
       this.displayTimer(countDownTimer - new Date().getTime())
 
+      let shutdownCommandSelection = document.querySelector('select#shutdownCommandSelect').value
+      let shutdownCommands = {
+        '1': 'shutdown',
+        '2': 'hibernate'
+      }
       this.interval = setInterval(() => {
         let difference = countDownTimer - new Date().getTime()
 
@@ -116,7 +126,7 @@ export default {
           console.log('SHUTDOWN!!!')
           document.querySelector('div#text').innerHTML = 'SHUTDOWN!!!'
           document.querySelector('div#time').innerHTML = ''
-          ipcRenderer.send('request-mainprocess-action', {'shutdown': true})
+          ipcRenderer.send('request-mainprocess-action', {'shutdown': shutdownCommands[shutdownCommandSelection]})
         }
       }, 1001)
     },

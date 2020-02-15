@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import childProcess from 'child_process'
 
 /**
@@ -52,14 +52,6 @@ function executeCommand (command, args, callback) {
     encoding: 'utf8',
     shell: true
   })
-  // You can also use a variable to save the output for when the script closes later
-  child.on('error', (error) => {
-    dialog.showMessageBox({
-      title: 'Title',
-      type: 'warning',
-      message: 'Error occured.\r\n' + error
-    })
-  })
 
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', (data) => {
@@ -79,9 +71,14 @@ function executeCommand (command, args, callback) {
 
 // Attach listener in the main process with the given ID
 ipcMain.on('request-mainprocess-action', (event, arg) => {
-  if (arg.shutdown) {
-    console.log('shutdown')
+  if (arg.shutdown === 'shutdown') {
     executeCommand('shutdown', ['-s -f'], null)
+  }
+  if (arg.shutdown === 'hibernate') {
+    executeCommand('shutdown', ['-h -f'], null)
+  }
+  if (arg.shutdown === 'cancel') {
+    executeCommand('shutdown', ['-a'], null)
   }
 })
 
