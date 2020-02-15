@@ -47,7 +47,7 @@ app.on('activate', () => {
   }
 })
 
-function executeCommand (command, args, callback) {
+function executeCommand (command, args) {
   let child = childProcess.spawn(command, args, {
     encoding: 'utf8',
     shell: true
@@ -72,13 +72,13 @@ function executeCommand (command, args, callback) {
 // Attach listener in the main process with the given ID
 ipcMain.on('request-mainprocess-action', (event, arg) => {
   if (arg.shutdown === 'shutdown') {
-    executeCommand('shutdown', ['-s -f'], null)
+    executeCommand('shutdown', ['-s -f'])
   }
   if (arg.shutdown === 'hibernate') {
-    executeCommand('shutdown', ['-h -f'], null)
+    executeCommand('shutdown', ['-h -f'])
   }
   if (arg.shutdown === 'cancel') {
-    executeCommand('shutdown', ['-a'], null)
+    executeCommand('shutdown', ['-a'])
   }
 })
 
