@@ -105,7 +105,7 @@ export default {
       ipcRenderer.send('request-mainprocess-action', {'shutdown': 'cancel'})
     },
     getSettingsFile () {
-      const dirPatch = path.resolve('static')
+      const dirPatch = path.resolve()
 
       return dirPatch + '/time.json'
     },
