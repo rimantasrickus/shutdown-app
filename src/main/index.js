@@ -1,7 +1,8 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import childProcess from 'child_process'
+import path from 'path'
 
 /**
  * Set `__static` path to static files in production
@@ -12,6 +13,8 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
+let tray
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
@@ -30,6 +33,35 @@ function createWindow () {
 
   mainWindow.on('closed', () => {
     mainWindow = null
+  })
+
+  console.log(path.join('256x256.png'))
+  tray = new Tray(path.join('256x256.png'))
+  tray.setContextMenu(Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        mainWindow.show()
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        mainWindow.destroy()
+        app.quit()
+      }
+    }
+  ]))
+
+  mainWindow.on('minimize', (event) => {
+    event.preventDefault()
+    mainWindow.minimize()
+  })
+
+  mainWindow.on('close', (event) => {
+    event.preventDefault()
+    mainWindow.hide()
+    return false
   })
 }
 
