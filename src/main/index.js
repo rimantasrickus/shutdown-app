@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage } from 'electron'
 import childProcess from 'child_process'
 import path from 'path'
 
@@ -35,8 +35,8 @@ function createWindow () {
     mainWindow = null
   })
 
-  console.log(path.join('256x256.png'))
-  tray = new Tray(path.join('256x256.png'))
+  const iconPath = path.join(__dirname, 'build/icons/icon.ico')
+  tray = new Tray(nativeImage.createFromPath(iconPath))
   tray.setContextMenu(Menu.buildFromTemplate([
     {
       label: 'Show App',
